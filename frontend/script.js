@@ -367,4 +367,4 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(err => console.error("❌ Error en el ping al backend", err));
     }, 5000);
 });
-
+ 
