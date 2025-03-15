@@ -360,5 +360,5 @@ setInterval(() => {
     fetch(`${API_URL}/api/health`)
         .then(res => console.log("✅ Ping al backend realizado con éxito"))
         .catch(err => console.error("❌ Error en el ping al backend", err));
-}, 300000); // 300,000 ms = 5 minutos
+}, 5000);
 
