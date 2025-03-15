@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(res => res.json())
             .then(data => console.log("✅ Ping al backend realizado con éxito:", data))
             .catch(err => console.error("❌ Error en el ping al backend", err));
-    }, 5000); // 5 minutos (para pruebas, puedes poner 5000 ms)
+    },300000); // 5 minutos (para pruebas, puedes poner 5000 ms)
 });
 
 
