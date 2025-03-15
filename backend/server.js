@@ -18,6 +18,11 @@ app.get("/", (req, res) => {
     res.send("¡Servidor funcionando!");
 });
 
+// Ruta de salud para evitar que Railway suspenda el backend
+app.get("/api/health", (req, res) => {
+    res.status(200).json({ message: "Backend activo" });
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
