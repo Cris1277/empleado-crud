@@ -7,7 +7,7 @@ const passwordRequirements = document.querySelector(".form-text"); // Requisitos
 const submitButton = document.querySelector("#auth-form button"); // Botón de enviar
 
 let isRegister = false;
-console.log("✅ script.js se está ejecutando correctamente");
+
 
 // 🔄 Alternar entre Login y Registro
 if (toggleForm) {
@@ -356,9 +356,15 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Mantener el backend activo con un ping cada 5 minutos
-setInterval(() => {
-    fetch(`${API_URL}/api/health`)
-        .then(res => console.log("✅ Ping al backend realizado con éxito"))
-        .catch(err => console.error("❌ Error en el ping al backend", err));
-}, 5000);
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("✅ script.js se está ejecutando correctamente");
+
+    setInterval(() => {
+        console.log("⏳ Ejecutando intervalo..."); // Para verificar si realmente se está ejecutando
+        fetch("https://empleado-crud-production.up.railway.app/api/health")
+            .then(res => res.json())
+            .then(data => console.log("✅ Ping al backend realizado con éxito:", data))
+            .catch(err => console.error("❌ Error en el ping al backend", err));
+    }, 5000);
+});
 
