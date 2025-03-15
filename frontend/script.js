@@ -1,3 +1,16 @@
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("✅ script.js se está ejecutando correctamente");
+
+    setInterval(() => {
+        console.log("⏳ Ejecutando intervalo..."); // Para verificar si realmente se está ejecutando
+        fetch("https://empleado-crud-production.up.railway.app/api/health")
+            .then(res => res.json())
+            .then(data => console.log("✅ Ping al backend realizado con éxito:", data))
+            .catch(err => console.error("❌ Error en el ping al backend", err));
+    }, 5000); // 5 minutos (para pruebas, puedes poner 5000 ms)
+});
+
+
 const API_URL = "https://empleado-crud-production.up.railway.app"; // ✅ URL del backend en Railway
 const form = document.getElementById("auth-form");
 const toggleForm = document.getElementById("toggle-form");
@@ -355,16 +368,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// Mantener el backend activo con un ping cada 5 minutos
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("✅ script.js se está ejecutando correctamente");
-
-    setInterval(() => {
-        console.log("⏳ Ejecutando intervalo..."); // Para verificar si realmente se está ejecutando
-        fetch("https://empleado-crud-production.up.railway.app/api/health")
-            .then(res => res.json())
-            .then(data => console.log("✅ Ping al backend realizado con éxito:", data))
-            .catch(err => console.error("❌ Error en el ping al backend", err));
-    }, 5000);
-});
- 
