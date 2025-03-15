@@ -8,6 +8,7 @@ const submitButton = document.querySelector("#auth-form button"); // Botón de e
 
 let isRegister = false;
 
+
 // 🔄 Alternar entre Login y Registro
 if (toggleForm) {
     toggleForm.addEventListener("click", (e) => {
@@ -364,6 +365,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(res => res.json())
             .then(data => console.log("✅ Ping al backend realizado con éxito:", data))
             .catch(err => console.error("❌ Error en el ping al backend", err));
-    }, 300000); // 5 minutos (para pruebas, puedes poner 5000 ms)
+    }, 5000);
 });
-
+ 
