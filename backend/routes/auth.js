@@ -2,7 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("../db");
-
+const pool = require("../db");
 const router = express.Router();
 const SECRET_KEY = "secreto";
 
@@ -79,21 +79,21 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({ mensaje: "Correo y contraseña son obligatorios" });
         }
 
-        // Buscar usuario
-        const [results] = await db.promise().query("SELECT * FROM usuarios WHERE correo = ?", [correo]);
+        const connection = await pool.getConnection();
+        const [results] = await connection.query("SELECT * FROM usuarios WHERE correo = ?", [correo]);
+        connection.release(); // Liberar conexión
+
         if (results.length === 0) {
             return res.status(400).json({ mensaje: "Usuario no encontrado" });
         }
 
         const usuario = results[0];
-
-        // Verificar contraseña
         const validPassword = await bcrypt.compare(password, usuario.password);
+
         if (!validPassword) {
             return res.status(400).json({ mensaje: "Contraseña incorrecta" });
         }
 
-        // Generar token con ID y rol
         const token = jwt.sign({ id: usuario.id, rol: usuario.rol }, SECRET_KEY, { expiresIn: "1h" });
 
         return res.json({ mensaje: "Login exitoso", token, rol: usuario.rol });
@@ -103,6 +103,7 @@ router.post("/login", async (req, res) => {
         return res.status(500).json({ mensaje: "Error interno del servidor" });
     }
 });
+
 
 // Obtener todos los usuarios (solo para administradores)
 router.get("/usuarios", verificarToken, async (req, res) => {
