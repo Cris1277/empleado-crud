@@ -9,7 +9,9 @@ module.exports = async (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, "secreto");
+        const SECRET_KEY = process.env.JWT_SECRET || "secreto"; // Asegurar que coincida con la clave del login
+        const decoded = jwt.verify(token, SECRET_KEY);
+
 
         const connection = await pool.getConnection();
         const [user] = await connection.query("SELECT id, rol FROM usuarios WHERE id = ?", [decoded.id]);
