@@ -1,17 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db");  // Asegúrate de que este es tu archivo de conexión a MySQL
+const pool = require("../db");
+const db = require("../db");  
 
 // Ruta para eliminar un usuario por ID
+
 router.delete("/eliminar-usuario/:id", async (req, res) => {
     const { id } = req.params;
 
     try {
-        // Ejecutar la consulta DELETE en MySQL
-        const [result] = await db.promise().execute("DELETE FROM usuarios WHERE id = ?", [id]);
+        const connection = await pool.getConnection();
+        const [result] = await connection.execute("DELETE FROM usuarios WHERE id = ?", [id]);
+        connection.release(); // Liberar conexión
 
-
-        // Verificar si se eliminó algún usuario
         if (result.affectedRows === 0) {
             return res.status(404).json({ mensaje: "Usuario no encontrado" });
         }
@@ -23,5 +24,6 @@ router.delete("/eliminar-usuario/:id", async (req, res) => {
         res.status(500).json({ mensaje: "Error al eliminar usuario" });
     }
 });
+
 
 module.exports = router;
