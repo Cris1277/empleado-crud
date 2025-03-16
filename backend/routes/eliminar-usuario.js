@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
-const db = require("../db");  
+//const db = require("../db");  
 
 // Ruta para eliminar un usuario por ID
 
