@@ -1,6 +1,6 @@
 const express = require("express");
 const pool = require("../db");
-const db = require("../db");
+//const db = require("../db");
 const authMiddleware = require("./authMiddleware");
 const adminMiddleware = require("./adminMiddleware");
 
