@@ -1,10 +1,10 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const db = require("../db");
-const pool = require("../db");
+const pool = require("../db"); //  Usar pool en lugar de db
 const router = express.Router();
-const SECRET_KEY = "secreto";
+
+const SECRET_KEY = process.env.JWT_SECRET || "secreto"; //  Usar variable de entorno
 
 // Middleware para verificar token y obtener usuario
 const verificarToken = async (req, res, next) => {
@@ -13,10 +13,14 @@ const verificarToken = async (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, SECRET_KEY);
-        const [user] = await db.promise().query("SELECT * FROM usuarios WHERE id = ?", [decoded.id]);
+
+        const connection = await pool.getConnection(); //  Obtener conexión
+        const [user] = await connection.query("SELECT * FROM usuarios WHERE id = ?", [decoded.id]);
+        connection.release(); //  Liberar conexión
+
         if (user.length === 0) return res.status(401).json({ mensaje: "Token inválido" });
 
-        req.user = user[0]; // Guardar datos del usuario en la request
+        req.user = user[0];
         next();
     } catch (error) {
         return res.status(401).json({ mensaje: "Token inválido" });
@@ -44,24 +48,25 @@ router.post("/register", async (req, res) => {
             });
         }
 
-        // Verificar si el correo ya está registrado
-        const [results] = await db.promise().query("SELECT id FROM usuarios WHERE correo = ?", [correo]);
+        const connection = await pool.getConnection(); //  Obtener conexión
+        const [results] = await connection.query("SELECT id FROM usuarios WHERE correo = ?", [correo]);
+
         if (results.length > 0) {
+            connection.release();
             return res.status(400).json({ mensaje: "El correo ya está registrado" });
         }
 
-        // Hashear la contraseña
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Asignar rol (por seguridad, solo un admin puede registrar otro admin)
         let rolAsignado = "usuario";
+
         if (req.user && req.user.rol === "admin" && rol === "admin") {
             rolAsignado = "admin";
         }
 
-        // Insertar usuario con rol
-        await db.promise().query("INSERT INTO usuarios (nombre, correo, password, rol) VALUES (?, ?, ?, ?)", [nombre, correo, hashedPassword, rolAsignado]);
+        await connection.query("INSERT INTO usuarios (nombre, correo, password, rol) VALUES (?, ?, ?, ?)", 
+            [nombre, correo, hashedPassword, rolAsignado]);
 
+        connection.release();
         return res.status(201).json({ mensaje: "Usuario registrado con éxito" });
 
     } catch (error) {
@@ -79,9 +84,9 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({ mensaje: "Correo y contraseña son obligatorios" });
         }
 
-        const connection = await pool.getConnection();
+        const connection = await pool.getConnection(); //  Obtener conexión
         const [results] = await connection.query("SELECT * FROM usuarios WHERE correo = ?", [correo]);
-        connection.release(); // Liberar conexión
+        connection.release(); //  Liberar conexión
 
         if (results.length === 0) {
             return res.status(400).json({ mensaje: "Usuario no encontrado" });
@@ -94,7 +99,7 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({ mensaje: "Contraseña incorrecta" });
         }
 
-        const token = jwt.sign({ id: usuario.id, rol: usuario.rol }, SECRET_KEY, { expiresIn: "1h" });
+        const token = jwt.sign({ id: usuario.id, rol: usuario.rol }, SECRET_KEY, { expiresIn: "2h" });
 
         return res.json({ mensaje: "Login exitoso", token, rol: usuario.rol });
 
@@ -104,7 +109,6 @@ router.post("/login", async (req, res) => {
     }
 });
 
-
 // Obtener todos los usuarios (solo para administradores)
 router.get("/usuarios", verificarToken, async (req, res) => {
     if (req.user.rol !== "admin") {
@@ -112,7 +116,10 @@ router.get("/usuarios", verificarToken, async (req, res) => {
     }
 
     try {
-        const [usuarios] = await db.promise().query("SELECT id, nombre, correo, rol FROM usuarios");
+        const connection = await pool.getConnection(); //  Obtener conexión
+        const [usuarios] = await connection.query("SELECT id, nombre, correo, rol FROM usuarios");
+        connection.release(); //  Liberar conexión
+
         res.json(usuarios);
     } catch (error) {
         console.error("Error al obtener usuarios:", error);
@@ -134,7 +141,10 @@ router.put("/cambiar-rol/:id", verificarToken, async (req, res) => {
             return res.status(400).json({ mensaje: "Rol inválido" });
         }
 
-        await db.promise().query("UPDATE usuarios SET rol = ? WHERE id = ?", [nuevoRol, id]);
+        const connection = await pool.getConnection(); //  Obtener conexión
+        await connection.query("UPDATE usuarios SET rol = ? WHERE id = ?", [nuevoRol, id]);
+        connection.release(); //  Liberar conexión
+
         res.json({ mensaje: "Rol actualizado con éxito" });
 
     } catch (error) {
@@ -144,4 +154,3 @@ router.put("/cambiar-rol/:id", verificarToken, async (req, res) => {
 });
 
 module.exports = router;
-
