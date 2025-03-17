@@ -11,8 +11,8 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/empleados", empleadosRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/auth", eliminarUsuarioRoutes);  
-//app.use("/api/usuarios", eliminarUsuarioRoutes);  
+//app.use("/api/auth", eliminarUsuarioRoutes);  
+app.use("/api/usuarios", eliminarUsuarioRoutes);  
 
 // Ruta de prueba
 app.get("/", (req, res) => {
