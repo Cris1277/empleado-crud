@@ -42,7 +42,7 @@ setInterval(async () => {
   } catch (error) {
     console.error("❌ Error en ping keep-alive:", error);
   }
-}, 270000); // 4.5 minutos
+},10000 /*270000*/); // 4.5 minutos
 
 // ✅ Escuchar en el puerto correcto
 const PORT = process.env.PORT || 5000;
