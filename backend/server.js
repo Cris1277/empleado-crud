@@ -4,7 +4,7 @@ require("dotenv").config();
 const empleadosRoutes = require("./routes/empleados");
 const authRoutes = require("./routes/auth");
 const eliminarUsuarioRoutes = require("./routes/eliminar-usuario");
-const pool = require("./db"); // 💡 Importar el pool para keep-alive
+const pool = require("./db");
 
 const app = express();
 
@@ -42,7 +42,7 @@ setInterval(async () => {
   } catch (error) {
     console.error("❌ Error en ping keep-alive:", error);
   }
-},10000 /*270000*/); // 4.5 minutos
+},270000); // 4.5 minutos
 
 // ✅ Escuchar en el puerto correcto
 const PORT = process.env.PORT || 5000;
