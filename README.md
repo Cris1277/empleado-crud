@@ -40,7 +40,7 @@ Desarrollada con **Node.js + Express** en el backend y **HTML + CSS + JavaScript
 - JavaScript (vanilla)
 - Bootstrap 5
 - Fetch API
-- Netlify (deploy)
+- GitHub Pages (deploy)
 
 ---
 
