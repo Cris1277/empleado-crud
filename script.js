@@ -1,1 +1,399 @@
-document.addEventListener("DOMContentLoaded",(()=>{console.log("✅ script.js se está ejecutando correctamente"),setInterval((()=>{console.log("⏳ Ejecutando intervalo..."),fetch("https://empleado-crud-production.up.railway.app/api/health").then((e=>e.json())).then((e=>console.log("✅ Ping al backend realizado con éxito:",e))).catch((e=>console.error("❌ Error en el ping al backend",e)))}),3e5)}));const API_URL="https://empleado-crud-production.up.railway.app",form=document.getElementById("auth-form"),toggleForm=document.getElementById("toggle-form"),formTitle=document.getElementById("form-title"),nombreInput=document.getElementById("nombre"),passwordRequirements=document.querySelector(".form-text"),submitButton=document.querySelector("#auth-form button");let isRegister=!1;toggleForm&&toggleForm.addEventListener("click",(e=>{e.preventDefault(),isRegister=!isRegister,formTitle.textContent=isRegister?"Registro":"Iniciar Sesión",nombreInput.style.display=isRegister?"block":"none",passwordRequirements.style.display=isRegister?"block":"none",submitButton.textContent=isRegister?"Registrar":"Ingresar",toggleForm.innerHTML=isRegister?'¿Ya tienes cuenta? <a href="#">Inicia sesión aquí</a>':'¿No tienes cuenta? <a href="#">Regístrate aquí</a>'})),form&&form.addEventListener("submit",(async e=>{e.preventDefault();const t=nombreInput.value.trim(),o=document.getElementById("correo").value.trim(),a=document.getElementById("password").value.trim(),r=isRegister?"/api/auth/register":"/api/auth/login",n=isRegister?{nombre:t,correo:o,password:a}:{correo:o,password:a};try{const e=await fetch(`${API_URL}${r}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(n)}),t=await e.json();e.ok?(mostrarAlerta(t.mensaje,"success"),isRegister||(localStorage.setItem("token",t.token),localStorage.setItem("rol",t.rol),setTimeout((()=>window.location.href="dashboard.html"),2e3))):mostrarAlerta(t.mensaje,"danger")}catch(e){mostrarAlerta("Error de conexión","danger"),console.error("Error:",e)}}));const token=localStorage.getItem("token");!token&&window.location.pathname.includes("dashboard.html")&&(window.location.href="index.html");let editando=!1,empleadoId=null;async function cargarEmpleados(){try{const e=await fetch(`${API_URL}/api/empleados`,{headers:{Authorization:`Bearer ${token}`}});if(!e.ok)throw new Error("Error al obtener empleados");const t=await e.json(),o=document.getElementById("empleados-list");o.innerHTML="",t.forEach((e=>{const t=document.createElement("tr");t.innerHTML=`\n                <td>${e.nombre}</td>\n                <td>${e.correo}</td>\n                <td>${e.cargo}</td>\n                <td>${e.salario}</td>\n                <td class="text-center">\n                    ${"admin"===userRole?`\n                        <button class="btn btn-warning btn-sm w-auto" onclick="editarEmpleado(${e.id}, '${e.nombre}', '${e.correo}', '${e.cargo}', ${e.salario})">✏️ Editar</button>\n                        <button class="btn btn-danger btn-sm w-auto" onclick="eliminarEmpleado(${e.id})">🗑 Eliminar</button>\n                    `:""}\n                </td>\n            `,o.appendChild(t)}))}catch(e){console.error("Error cargando empleados:",e)}}async function agregarEmpleado(e){e.preventDefault();const t=document.getElementById("nombre").value.trim(),o=document.getElementById("correo").value.trim(),a=document.getElementById("cargo").value.trim(),r=document.getElementById("salario").value.trim(),n=editando?`${API_URL}/api/empleados/${empleadoId}`:`${API_URL}/api/empleados`,i=editando?"PUT":"POST";try{const e=await fetch(n,{method:i,headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify({nombre:t,correo:o,cargo:a,salario:r})}),s=await e.json();e.ok?(mostrarAlerta(editando?"Empleado actualizado con éxito":"Empleado agregado con éxito","success"),document.getElementById("empleado-form").reset(),cargarEmpleados(),editando=!1,empleadoId=null):mostrarAlerta(s.mensaje,"danger")}catch(e){mostrarAlerta(editando?"Error al actualizar empleado":"Error al agregar empleado","danger")}}function editarEmpleado(e,t,o,a,r){document.getElementById("nombre").value=t,document.getElementById("correo").value=o,document.getElementById("cargo").value=a,document.getElementById("salario").value=r,editando=!0,empleadoId=e}async function eliminarEmpleado(e){if(confirm("¿Estás seguro de eliminar este empleado?"))try{const t=await fetch(`${API_URL}/api/empleados/${e}`,{method:"DELETE",headers:{Authorization:`Bearer ${token}`}}),o=await t.json();t.ok?(mostrarAlerta("Empleado eliminado con éxito","warning"),cargarEmpleados()):mostrarAlerta(o.mensaje,"danger")}catch(e){mostrarAlerta("Error al eliminar empleado","danger")}}function cerrarSesion(){localStorage.removeItem("token"),window.location.href="index.html"}const formEmpleado=document.getElementById("empleado-form");function mostrarAlerta(e,t="success"){const o=document.getElementById("alerta");o.textContent=e,o.className=`alert alert-${t} text-center`,o.classList.remove("d-none"),setTimeout((()=>{o.classList.add("d-none")}),3e3)}formEmpleado&&formEmpleado.addEventListener("submit",agregarEmpleado),window.location.pathname.includes("dashboard.html")&&cargarEmpleados();let userRole=localStorage.getItem("rol");async function cargarUsuarios(){const e=localStorage.getItem("token");try{const t=await fetch(`${API_URL}/api/auth/usuarios`,{headers:{Authorization:`Bearer ${e}`}});if(!t.ok)throw new Error("Error al obtener usuarios");const o=await t.json(),a=document.getElementById("usuarios-list");a.innerHTML="",o.forEach((e=>{const t=document.createElement("tr");t.innerHTML=`\n                <td>${e.nombre}</td>\n                <td>${e.correo}</td>\n                <td>\n                    <select id="rol-${e.id}">\n                        <option value="usuario" ${"usuario"===e.rol?"selected":""}>Usuario</option>\n                        <option value="admin" ${"admin"===e.rol?"selected":""}>Admin</option>\n                    </select>\n                </td>\n                <td>\n                    <button class="btn btn-success btn-sm w-auto" onclick="cambiarRol(${e.id})">Actualizar</button>\n                    <button class="btn btn-danger btn-sm w-auto" onclick="eliminarUsuario(${e.id})">Eliminar</button>\n                </td>\n            `,a.appendChild(t)}))}catch(e){console.error("Error cargando usuarios:",e)}}async function cambiarRol(e){const t=localStorage.getItem("token"),o=document.getElementById(`rol-${e}`).value;try{const a=await fetch(`${API_URL}/api/auth/cambiar-rol/${e}`,{method:"PUT",headers:{"Content-Type":"application/json",Authorization:`Bearer ${t}`},body:JSON.stringify({nuevoRol:o})}),r=await a.json();a.ok?(mostrarAlerta("Rol actualizado con éxito","success"),cargarUsuarios()):mostrarAlerta(r.mensaje,"danger")}catch(e){mostrarAlerta("Error al actualizar rol","danger")}}async function eliminarUsuario(e){if(!confirm("¿Estás seguro de eliminar este usuario?"))return;const t=localStorage.getItem("token");try{const o=await fetch(`${API_URL}/api/usuarios/eliminar-usuario/${e}`,{method:"DELETE",headers:{Authorization:`Bearer ${t}`}}),a=await o.json();o.ok?(mostrarAlerta("Usuario eliminado con éxito","success"),cargarUsuarios()):mostrarAlerta(a.mensaje,"danger")}catch(e){mostrarAlerta("Error al eliminar usuario","danger")}}"admin"===userRole&&(document.getElementById("admin-panel").style.display="block"),document.addEventListener("DOMContentLoaded",(()=>{let e=localStorage.getItem("rol")||"",t=document.getElementById("admin-panel"),o=document.getElementById("empleado-form");console.log("Rol del usuario:",e),o&&(o.style.display="admin"!==e?"none":"block"),t&&("admin"!==e?t.remove():(t.style.display="block",cargarUsuarios()))}));
+// =====================
+//  Carga inicial
+// =====================
+
+/**
+ * Evento que se ejecuta cuando el DOM está completamente cargado.
+ * Se utiliza para inicializar scripts y configurar tareas repetitivas.
+ */
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("✅ script.js se está ejecutando correctamente");
+
+    // Realiza un ping al backend cada 5 minutos para mantenerlo activo (Railway free-tier)
+    setInterval(() => {
+        console.log("⏳ Ejecutando intervalo...");
+        fetch("https://empleado-crud-production.up.railway.app/api/health")
+            .then(res => res.json())
+            .then(data => console.log("✅ Ping al backend realizado con éxito:", data))
+            .catch(err => console.error("❌ Error en el ping al backend", err));
+    }, 300000); // 300,000 ms = 5 minutos
+});
+
+// =====================
+//  Variables globales
+// =====================
+
+/**
+ * Variables reutilizables a lo largo del script, incluyendo referencias al DOM
+ * y configuraciones relacionadas con el usuario y el estado de sesión.
+ */
+const API_URL = "https://empleado-crud-production.up.railway.app";
+const form = document.getElementById("auth-form");
+const toggleForm = document.getElementById("toggle-form");
+const formTitle = document.getElementById("form-title");
+const nombreInput = document.getElementById("nombre");
+const passwordRequirements = document.querySelector(".form-text");
+const submitButton = document.querySelector("#auth-form button");
+
+let isRegister = false;
+let editando = false;
+let empleadoId = null;
+const token = localStorage.getItem("token");
+let userRole = localStorage.getItem("rol");
+
+// =====================
+//  Autenticación
+// =====================
+
+/**
+ * Alternancia entre el formulario de registro e inicio de sesión.
+ */
+if (toggleForm) {
+    toggleForm.addEventListener("click", (e) => {
+        e.preventDefault();
+        isRegister = !isRegister;
+
+        formTitle.textContent = isRegister ? "Registro" : "Iniciar Sesión";
+        nombreInput.style.display = isRegister ? "block" : "none";
+        passwordRequirements.style.display = isRegister ? "block" : "none";
+        submitButton.textContent = isRegister ? "Registrar" : "Ingresar";
+
+        toggleForm.innerHTML = isRegister
+            ? '¿Ya tienes cuenta? <a href="#">Inicia sesión aquí</a>'
+            : '¿No tienes cuenta? <a href="#">Regístrate aquí</a>';
+    });
+}
+
+/**
+ * Manejo del formulario de autenticación (login o registro).
+ */
+if (form) {
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const nombre = nombreInput.value.trim();
+        const correo = document.getElementById("correo").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const endpoint = isRegister ? "/api/auth/register" : "/api/auth/login";
+
+        const data = isRegister
+            ? { nombre, correo, password }
+            : { correo, password };
+
+        try {
+            const res = await fetch(`${API_URL}${endpoint}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+                mostrarAlerta(result.mensaje, "success");
+
+                if (!isRegister) {
+                    localStorage.setItem("token", result.token);
+                    localStorage.setItem("rol", result.rol);
+                    setTimeout(() => window.location.href = "dashboard.html", 2000);
+                }
+            } else {
+                mostrarAlerta(result.mensaje, "danger");
+            }
+        } catch (err) {
+            mostrarAlerta("Error de conexión", "danger");
+            console.error("Error:", err);
+        }
+    });
+}
+
+// =====================
+//  Seguridad
+// =====================
+
+/**
+ * Si no hay token y se intenta acceder al dashboard, redirigir al inicio de sesión.
+ */
+if (!token && window.location.pathname.includes("dashboard.html")) {
+    window.location.href = "index.html";
+}
+
+// =====================
+//  Empleados
+// =====================
+
+/**
+ * Obtiene y renderiza la lista de empleados.
+ */
+async function cargarEmpleados() {
+    try {
+        const res = await fetch(`${API_URL}/api/empleados`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error("Error al obtener empleados");
+
+        const empleados = await res.json();
+        const lista = document.getElementById("empleados-list");
+        lista.innerHTML = "";
+
+        empleados.forEach(emp => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${emp.nombre}</td>
+                <td>${emp.correo}</td>
+                <td>${emp.cargo}</td>
+                <td>${emp.salario}</td>
+                <td class="text-center">
+                    ${userRole === "admin"
+                        ? `<button class="btn btn-warning btn-sm w-auto" onclick="editarEmpleado(${emp.id}, '${emp.nombre}', '${emp.correo}', '${emp.cargo}', ${emp.salario})">✏️ Editar</button>
+                           <button class="btn btn-danger btn-sm w-auto" onclick="eliminarEmpleado(${emp.id})">🗑 Eliminar</button>`
+                        : ""}
+                </td>
+            `;
+            lista.appendChild(tr);
+        });
+    } catch (err) {
+        console.error("Error cargando empleados:", err);
+    }
+}
+
+/**
+ * Carga los datos de un empleado en el formulario para edición.
+ */
+function editarEmpleado(id, nombre, correo, cargo, salario) {
+    document.getElementById("nombre").value = nombre;
+    document.getElementById("correo").value = correo;
+    document.getElementById("cargo").value = cargo;
+    document.getElementById("salario").value = salario;
+    editando = true;
+    empleadoId = id;
+}
+
+/**
+ * Elimina un empleado tras confirmación.
+ */
+async function eliminarEmpleado(id) {
+    if (confirm("¿Estás seguro de eliminar este empleado?")) {
+        try {
+            const res = await fetch(`${API_URL}/api/empleados/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const result = await res.json();
+
+            if (res.ok) {
+                mostrarAlerta("Empleado eliminado con éxito", "warning");
+                cargarEmpleados();
+            } else {
+                mostrarAlerta(result.mensaje, "danger");
+            }
+        } catch (err) {
+            mostrarAlerta("Error al eliminar empleado", "danger");
+        }
+    }
+}
+
+/**
+ * Crea o actualiza un empleado según el modo actual.
+ */
+async function agregarEmpleado(e) {
+    e.preventDefault();
+
+    const nombre = document.getElementById("nombre").value.trim();
+    const correo = document.getElementById("correo").value.trim();
+    const cargo = document.getElementById("cargo").value.trim();
+    const salario = document.getElementById("salario").value.trim();
+
+    const url = editando
+        ? `${API_URL}/api/empleados/${empleadoId}`
+        : `${API_URL}/api/empleados`;
+    const method = editando ? "PUT" : "POST";
+
+    try {
+        const res = await fetch(url, {
+            method,
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ nombre, correo, cargo, salario })
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+            mostrarAlerta(editando ? "Empleado actualizado con éxito" : "Empleado agregado con éxito", "success");
+            document.getElementById("empleado-form").reset();
+            cargarEmpleados();
+            editando = false;
+            empleadoId = null;
+        } else {
+            mostrarAlerta(result.mensaje, "danger");
+        }
+    } catch (err) {
+        mostrarAlerta(editando ? "Error al actualizar empleado" : "Error al agregar empleado", "danger");
+    }
+}
+
+// =====================
+//  Usuarios
+// =====================
+
+/**
+ * Carga la lista de usuarios y permite gestión de roles.
+ */
+async function cargarUsuarios() {
+    try {
+        const res = await fetch(`${API_URL}/api/auth/usuarios`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error("Error al obtener usuarios");
+
+        const usuarios = await res.json();
+        const lista = document.getElementById("usuarios-list");
+        lista.innerHTML = "";
+
+        usuarios.forEach(u => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${u.nombre}</td>
+                <td>${u.correo}</td>
+                <td>
+                    <select id="rol-${u.id}">
+                        <option value="usuario" ${u.rol === "usuario" ? "selected" : ""}>Usuario</option>
+                        <option value="admin" ${u.rol === "admin" ? "selected" : ""}>Admin</option>
+                    </select>
+                </td>
+                <td>
+                    <button class="btn btn-success btn-sm w-auto" onclick="cambiarRol(${u.id})">Actualizar</button>
+                    <button class="btn btn-danger btn-sm w-auto" onclick="eliminarUsuario(${u.id})">Eliminar</button>
+                </td>
+            `;
+            lista.appendChild(tr);
+        });
+    } catch (err) {
+        console.error("Error cargando usuarios:", err);
+    }
+}
+
+/**
+ * Actualiza el rol de un usuario.
+ */
+async function cambiarRol(id) {
+    const nuevoRol = document.getElementById(`rol-${id}`).value;
+
+    try {
+        const res = await fetch(`${API_URL}/api/auth/cambiar-rol/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ nuevoRol })
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+            mostrarAlerta("Rol actualizado con éxito", "success");
+            cargarUsuarios();
+        } else {
+            mostrarAlerta(result.mensaje, "danger");
+        }
+    } catch (err) {
+        mostrarAlerta("Error al actualizar rol", "danger");
+    }
+}
+
+/**
+ * Elimina un usuario tras confirmación.
+ */
+async function eliminarUsuario(id) {
+    if (!confirm("¿Estás seguro de eliminar este usuario?")) return;
+
+    try {
+        const res = await fetch(`${API_URL}/api/usuarios/eliminar-usuario/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+            mostrarAlerta("Usuario eliminado con éxito", "success");
+            cargarUsuarios();
+        } else {
+            mostrarAlerta(result.mensaje, "danger");
+        }
+    } catch (err) {
+        mostrarAlerta("Error al eliminar usuario", "danger");
+    }
+}
+
+// =====================
+//  Utilidades
+// =====================
+
+/**
+ * Muestra una alerta dinámica en pantalla.
+ * @param {string} mensaje - Mensaje a mostrar
+ * @param {string} tipo - Tipo de alerta (success, danger, warning)
+ */
+function mostrarAlerta(mensaje, tipo = "success") {
+    const alerta = document.getElementById("alerta");
+    alerta.textContent = mensaje;
+    alerta.className = `alert alert-${tipo} text-center`;
+    alerta.classList.remove("d-none");
+
+    setTimeout(() => {
+        alerta.classList.add("d-none");
+    }, 3000);
+}
+
+/**
+ * Cierra sesión limpiando el token y redirigiendo al login.
+ */
+function cerrarSesion() {
+    localStorage.removeItem("token");
+    window.location.href = "index.html";
+}
+
+// =====================
+//  Inicialización de dashboard
+// =====================
+
+const formEmpleado = document.getElementById("empleado-form");
+if (formEmpleado) {
+    formEmpleado.addEventListener("submit", agregarEmpleado);
+}
+
+// Carga inicial si se encuentra en el dashboard
+if (window.location.pathname.includes("dashboard.html")) {
+    cargarEmpleados();
+}
+
+/**
+ * Configura elementos del DOM según el rol del usuario.
+ */
+document.addEventListener("DOMContentLoaded", () => {
+    const rol = localStorage.getItem("rol") || "";
+    const adminPanel = document.getElementById("admin-panel");
+    const empleadoForm = document.getElementById("empleado-form");
+
+    console.log("Rol del usuario:", rol);
+
+    if (empleadoForm) {
+        empleadoForm.style.display = rol !== "admin" ? "none" : "block";
+    }
+
+    if (adminPanel) {
+        if (rol !== "admin") {
+            adminPanel.remove();
+        } else {
+            adminPanel.style.display = "block";
+            cargarUsuarios();
+        }
+    }
+});
