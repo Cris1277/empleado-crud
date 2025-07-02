@@ -5,7 +5,11 @@ Aplicación web fullstack para la gestión de empleados y usuarios con roles dif
 Desarrollada con **Node.js + Express** en el backend y **HTML + CSS + JavaScript + Bootstrap** en el frontend.
 
 ---
+## 🔗 Demo en vivo
 
+👉 [Ver aplicación desplegada](https://cris1277.github.io/empleado-crud/)
+
+---
 ## 🎯 Funcionalidades
 
 ### 🟢 Usuario registrado
@@ -126,7 +130,6 @@ JWT_SECRET=clave_secreta
    ```js
    const API_URL = "https://empleado-crud-production.up.railway.app";
    ```
-
 ## 👨‍💻 Autor
 
 **Cristian [cris1277]**   
