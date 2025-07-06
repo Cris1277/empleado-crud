@@ -10,6 +10,17 @@ Built with **Node.js + Express** on the backend and **HTML + CSS + JavaScript + 
 👉 [View Deployed App](https://cris1277.github.io/empleado-crud/)
 
 ---
+
+## 👤 Test User
+
+To explore all admin-level features without registering, use the following test credentials:
+
+- **Email:** usuario@gmail.com  
+- **Password:** Pruebas123*
+
+This user account has administrator permissions and can access all sections of the system.
+
+---
 ## 🎯 Features
 
 ### 🟢 Registered User
