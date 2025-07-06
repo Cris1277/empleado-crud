@@ -1,50 +1,50 @@
-# 🧑‍💼 Sistema de Gestión de Empleados (Fullstack)
+# 🧑‍💼 Employee Management System (Fullstack)
 
-Aplicación web fullstack para la gestión de empleados y usuarios con roles diferenciados (`admin` y `usuario`). Permite el **registro, autenticación, CRUD de empleados, cambio de roles y eliminación de usuarios**, todo en una interfaz clara y protegida.
+Fullstack web application for managing employees and users with differentiated roles (`admin` and `user`). It allows **registration, authentication, CRUD of employees, role switching, and user deletion**, all through a clean and protected interface.
 
-Desarrollada con **Node.js + Express** en el backend y **HTML + CSS + JavaScript + Bootstrap** en el frontend.
-
----
-## 🔗 Demo en vivo
-
-👉 [Ver aplicación desplegada](https://cris1277.github.io/empleado-crud/)
+Built with **Node.js + Express** on the backend and **HTML + CSS + JavaScript + Bootstrap** on the frontend.
 
 ---
-## 🎯 Funcionalidades
+## 🔗 Live Demo
 
-### 🟢 Usuario registrado
-- Registro/Login con validación de contraseña segura.
-- Visualización de lista de empleados.
-- Logout y persistencia de sesión con localStorage.
+👉 [View Deployed App](https://cris1277.github.io/empleado-crud/)
 
-### 🔵 Usuario admin
-- Todas las anteriores, más:
-  - Agregar/editar/eliminar empleados.
-  - Ver lista de usuarios registrados.
-  - Cambiar roles (`admin` o `usuario`) a otros usuarios.
-  - Eliminar cuentas de usuario.
+---
+## 🎯 Features
+
+### 🟢 Registered User
+- Register/Login with secure password validation.
+- View employee list.
+- Logout and session persistence with localStorage.
+
+### 🔵 Admin User
+- All of the above, plus:
+  - Add/edit/delete employees.
+  - View list of registered users.
+  - Change user roles (`admin` or `user`).
+  - Delete user accounts.
 
 ---
 
-## 🧩 Tecnologías utilizadas
+## 🧩 Tech Stack
 
 ### 🔧 Backend
 - Node.js + Express
 - MySQL (mysql2/promise)
-- JWT para autenticación
-- Bcryptjs para hashing de contraseñas
-- Dotenv, CORS, Railway (deploy)
+- JWT for authentication
+- Bcryptjs for password hashing
+- Dotenv, CORS, Railway (deployment)
 
 ### 🎨 Frontend
 - HTML5 + CSS3
 - JavaScript (vanilla)
 - Bootstrap 5
 - Fetch API
-- GitHub Pages (deploy)
+- GitHub Pages (deployment)
 
 ---
 
-## 📁 Estructura del proyecto
+## 📁 Project Structure
 
 ```
 📦 empleado-crud/
@@ -69,48 +69,48 @@ Desarrollada con **Node.js + Express** en el backend y **HTML + CSS + JavaScript
 
 ---
 
-## 🔐 Seguridad
+## 🔐 Security
 
-- Autenticación basada en **JWT**.
-- Protección de rutas con middlewares.
-- Permisos por rol.
-- Validación de contraseñas con requisitos de seguridad.
-- Keep-alive para Railway para mantener activa la base de datos.
+- JWT-based authentication.
+- Route protection with middlewares.
+- Role-based permissions.
+- Password validation with security requirements.
+- Keep-alive setting on Railway to keep the database active.
 
 ---
 
-## 🧪 Variables de entorno `.env` (backend)
+## 🧪 Environment Variables `.env` (backend)
 
 ```env
 PORT=5000
-DB_HOST=tu_host
-DB_USER=tu_usuario
-DB_PASSWORD=tu_contraseña
-DB_NAME=nombre_base_de_datos
+DB_HOST=your_host
+DB_USER=your_user
+DB_PASSWORD=your_password
+DB_NAME=your_database_name
 DB_PORT=3306
-JWT_SECRET=clave_secreta
+JWT_SECRET=your_secret_key
 ```
 
 ---
 
-## ▶️ Cómo ejecutar localmente
+## ▶️ How to Run Locally
 
 ### 🔧 Backend
 
-1. Clonar el repositorio:
+1. Clone the repository:
    ```bash
-   git clone https://github.com/tu_usuario/empleado-crud.git
+   git clone https://github.com/your_user/empleado-crud.git
    cd empleado-crud/backend
    ```
 
-2. Instalar dependencias:
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-3. Crear archivo `.env` con tus credenciales MySQL.
+3. Create a `.env` file with your MySQL credentials.
 
-4. Iniciar el servidor:
+4. Start the server:
    ```bash
    npm start
    ```
@@ -119,24 +119,27 @@ JWT_SECRET=clave_secreta
 
 ### 🎨 Frontend
 
-1. Ir al directorio del frontend:
+1. Navigate to the frontend directory:
    ```bash
    cd empleado-crud/frontend
    ```
 
-2. Abrir `index.html` en tu navegador o subir a Netlify.
+2. Open `index.html` in your browser or deploy to Netlify.
 
-3. Asegúrate de que la constante `API_URL` en `script.js` apunte al backend correcto:
+3. Make sure the `API_URL` constant in `script.js` points to the correct backend:
    ```js
    const API_URL = "https://empleado-crud-production.up.railway.app";
    ```
-## 👨‍💻 Autor
+
+---
+
+## 👨‍💻 Author
 
 **Cristian [cris1277]**   
 🔗 [GitHub](https://github.com/cris1277)  
 
 ---
 
-## 📝 Licencia
+## 📝 License
 
-Este proyecto está licenciado bajo la [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE).
